@@ -11,7 +11,7 @@ import { BUCKETS, BUCKET_LABELS, type Bucket } from '@/types';
 
 export default function TodayScreen() {
   const router = useRouter();
-  const { data, skip } = useToday();
+  const { data, skip, markDone } = useToday();
 
   function start(bucket: Bucket, label: string | null, taskId?: string) {
     router.push({
@@ -48,6 +48,9 @@ export default function TodayScreen() {
               ) : null}
               <View style={styles.actions}>
                 <Button label="Start 5 minutes" onPress={() => start(task.bucket, task.label, task.id)} />
+                {task.bucket === 'applications' ? (
+                  <Button label="Mark sent" variant="secondary" onPress={markDone} />
+                ) : null}
                 {pendingCount > 1 ? <Button label="Skip" variant="secondary" onPress={skip} /> : null}
               </View>
             </>

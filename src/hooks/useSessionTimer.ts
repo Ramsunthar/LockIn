@@ -2,15 +2,15 @@ import { useRouter } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useEffect, useRef, useState } from 'react';
 
-import { endSession, startSession } from '@/db/sessions';
+import { finishSession, startSession } from '@/db/sessions';
 import type { Bucket } from '@/types';
 
 export const FIVE_MINUTES = 300;
 export const COMPLETION_SECONDS = 1500;
 
-type Params = { bucket: Bucket; label: string | null };
+type Params = { bucket: Bucket; label: string | null; taskId: string | null };
 
-export function useSessionTimer({ bucket, label }: Params) {
+export function useSessionTimer({ bucket, label, taskId }: Params) {
   const db = useSQLiteContext();
   const router = useRouter();
 
@@ -48,7 +48,7 @@ export function useSessionTimer({ bucket, label }: Params) {
     if (stopping || sessionId.current === null || startedAtMs === null) return;
     setStopping(true);
     const seconds = Math.floor((Date.now() - startedAtMs) / 1000);
-    await endSession(db, sessionId.current, seconds);
+    await finishSession(db, sessionId.current, seconds, taskId);
     router.dismissTo('/');
   }
 

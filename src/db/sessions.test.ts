@@ -1,6 +1,7 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
 
-import { countCompletedOn, endSession, startSession } from './sessions';
+import { countCompletedOn, endSession, finishSession, startSession } from './sessions';
+import { getPlan, savePlan } from './tasks';
 import { createTestDb } from './test-db';
 
 // jest only allows out-of-scope variables in a mock factory if they start with `mock`.
@@ -66,5 +67,30 @@ describe('countCompletedOn', () => {
     await endSession(db, c, 1600, at(11, 10));
     expect(await countCompletedOn(db, '2026-05-10')).toBe(1);
     expect(await countCompletedOn(db, '2026-05-12')).toBe(0);
+  });
+});
+
+describe('finishSession', () => {
+  const taskStatus = async () => (await getPlan(db, '2026-05-10'))[0].status;
+
+  it('marks the task done when the session completes', async () => {
+    await savePlan(db, '2026-05-10', [{ bucket: 'study', label: null }]);
+    const [task] = await getPlan(db, '2026-05-10');
+    const id = await startSession(db, 'study', null, at(10, 9));
+    expect(await finishSession(db, id, 1500, task.id, at(10, 9, 25))).toBe(true);
+    expect(await taskStatus()).toBe('done');
+  });
+
+  it('leaves the task pending when the session is abandoned', async () => {
+    await savePlan(db, '2026-05-10', [{ bucket: 'study', label: null }]);
+    const [task] = await getPlan(db, '2026-05-10');
+    const id = await startSession(db, 'study', null, at(10, 9));
+    expect(await finishSession(db, id, 400, task.id, at(10, 9, 7))).toBe(false);
+    expect(await taskStatus()).toBe('pending');
+  });
+
+  it('works for a free session with no task', async () => {
+    const id = await startSession(db, 'dsa', null, at(10, 9));
+    expect(await finishSession(db, id, 1500, null, at(10, 9, 25))).toBe(true);
   });
 });

@@ -1,56 +1,67 @@
-# Welcome to your Expo app 👋
+# LockIn
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A local-first focus tracker for beating procrastination. Built with Expo and
+React Native.
 
-## Get started
+Starting is the hard part, not the work. LockIn asks for five minutes,
+picks the task for you the night before, and shows a single button. Finished
+sessions fill a GitHub-style grid and feed a streak that survives two missed
+days a month.
 
-1. Install dependencies
+## Why it exists
 
-   ```bash
-   npm install
-   ```
+Built to solve a specific problem: doom-scrolling and gaming displacing
+certification study, LeetCode practice, portfolio work, and job
+applications. Existing habit apps either overwhelm with RPG mechanics or
+reward logging rather than starting. This one does neither.
 
-2. Start the app
+## Core mechanics
 
-   ```bash
-   npx expo start
-   ```
+- **Five-minute start.** The commitment is five minutes; the timer keeps
+  running past it. A session counts as complete at 25 minutes.
+- **One task at a time.** Tomorrow's four tasks are chosen the evening
+  before. The home screen shows one of them and a Start button, never a
+  list.
+- **Four fixed buckets.** Study, DSA, Project, Applications. Not
+  configurable, by design.
+- **Streaks with grace.** A day counts if one session completes. Two grace
+  days per month are spent automatically, so one bad week does not erase
+  three good months.
+- **Activity grid.** Month view shaded by session count, with a rolling
+  12-week strip.
+- **4am day boundary.** A session at 1:30am belongs to the day you think it
+  does.
 
-In the output, you'll find options to open the app in a
+## Stack
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+Expo (React Native) · TypeScript · expo-router · expo-sqlite · date-fns
 
-You can start developing by editing the files inside the **src/app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+No backend, no accounts, no network calls. All data stays on the device.
 
-## Get a fresh project
-
-When you're ready, run:
+## Running it
 
 ```bash
-npm run reset-project
+npm install
+npx expo start
 ```
 
-This command will move the starter code to the **example** directory and create a blank **src/app** directory where you can start developing.
+Scan the QR code with Expo Go on an Android device.
 
-### Other setup steps
+## Documentation
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+- [`docs/product-spec.md`](docs/product-spec.md) — scope, rules, screens
+- [`docs/data-model.md`](docs/data-model.md) — schema and the reasoning
+  behind it
+- [`docs/tickets.md`](docs/tickets.md) — ordered work queue
 
-## Learn more
+## Roadmap
 
-To learn more about developing your project with Expo, look at the following resources:
+**v1.5** — earned-leisure token system, Wordle-style weekly share string,
+certification hour tracking.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+**v2** — backend and sync, with automatic session import from GitHub,
+WakaTime, and LeetCode so coding time logs itself.
 
-## Join the community
+## Licence
 
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+MIT

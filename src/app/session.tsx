@@ -1,4 +1,4 @@
-import { useLocalSearchParams } from 'expo-router';
+import { Redirect, useLocalSearchParams } from 'expo-router';
 import { useEffect } from 'react';
 import { BackHandler, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -9,16 +9,20 @@ import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { COMPLETION_SECONDS, FIVE_MINUTES, useSessionTimer } from '@/hooks/useSessionTimer';
 import { formatClock } from '@/lib/format';
-import { BUCKET_LABELS, type Bucket } from '@/types';
+import { BUCKETS, BUCKET_LABELS, type Bucket } from '@/types';
 
 export default function SessionScreen() {
   const params = useLocalSearchParams<{ bucket: Bucket; label?: string; taskId?: string }>();
-  const bucket = params.bucket;
-  const { elapsed, stop, stopping, ready } = useSessionTimer({
-    bucket,
-    label: params.label ? params.label : null,
-    taskId: params.taskId ? params.taskId : null,
-  });
+  // A session without a valid bucket (a stale link, a reload on this route)
+  // would insert a row that violates the schema. Bounce to Today instead.
+  // This is a separate component from the one below because hooks can't be
+  // called conditionally: useSessionTimer must only run once the bucket is known.
+  if (!BUCKETS.includes(params.bucket)) return <Redirect href="/" />;
+  return <SessionRunner bucket={params.bucket} label={params.label ?? null} taskId={params.taskId ?? null} />;
+}
+
+function SessionRunner({ bucket, label, taskId }: { bucket: Bucket; label: string | null; taskId: string | null }) {
+  const { elapsed, stop, stopping, ready } = useSessionTimer({ bucket, label: label || null, taskId: taskId || null });
   const theme = useTheme();
 
   // Android's back button would leave the session running in the background.
@@ -38,7 +42,7 @@ export default function SessionScreen() {
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
         <ThemedText type="subtitle">{BUCKET_LABELS[bucket]}</ThemedText>
-        {params.label ? <ThemedText themeColor="textSecondary">{params.label}</ThemedText> : null}
+        {label ? <ThemedText themeColor="textSecondary">{label}</ThemedText> : null}
 
         <ThemedText type="title" style={styles.clock}>
           {formatClock(elapsed)}

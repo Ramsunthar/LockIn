@@ -1,5 +1,7 @@
 import { getDay, getDaysInMonth, parseISO } from 'date-fns';
 
+import { shiftLocalDate } from './day';
+
 
 export type Level = 0 | 1 | 2 | 3;
 
@@ -59,3 +61,35 @@ export function buildMonthCells(
   return cells;
 }
 
+
+export const STRIP_WEEKS = 12;
+
+/** Monday of the week that contains `date`. */
+function weekStart(date: string): string {
+  return shiftLocalDate(date, -((getDay(parseISO(date)) + 6) % 7));
+}
+
+/** First date shown in the strip: the Monday 11 weeks before this week's. */
+export function stripStart(today: string, weeks: number = STRIP_WEEKS): string {
+  return shiftLocalDate(weekStart(today), -7 * (weeks - 1));
+}
+
+/**
+ * The last-12-weeks strip: one array per week (oldest first), each holding
+ * Monday..Sunday. Days after today are `null`, so the final column is
+ * short-filled rather than showing the future.
+ */
+export function buildWeekStrip(
+  today: string,
+  counts: Record<string, number>,
+  graceDates: ReadonlySet<string>,
+  weeks: number = STRIP_WEEKS
+): (GridCell | null)[][] {
+  const start = stripStart(today, weeks);
+  return Array.from({ length: weeks }, (_, w) =>
+    Array.from({ length: 7 }, (_, d) => {
+      const date = shiftLocalDate(start, w * 7 + d);
+      return date > today ? null : makeCell(date, counts, graceDates, today);
+    })
+  );
+}

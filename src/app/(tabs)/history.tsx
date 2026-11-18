@@ -6,12 +6,15 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { WeekStrip } from '@/components/week-strip';
 import { BottomTabInset, Spacing } from '@/constants/theme';
+import { hasCompletedSession } from '@/db/history';
+import { useFocusQuery } from '@/hooks/use-focus-query';
 import { useMonthGrid } from '@/hooks/useMonthGrid';
 import { useStreak } from '@/hooks/useStreak';
 import { useWeekStrip } from '@/hooks/useWeekStrip';
 import { formatMonth } from '@/lib/format';
 
 export default function HistoryScreen() {
+  const { data: hasHistory } = useFocusQuery(hasCompletedSession);
   const streak = useStreak();
   const weeks = useWeekStrip();
   const { month, cells, canGoNext, goPrev, goNext } = useMonthGrid();
@@ -36,6 +39,12 @@ export default function HistoryScreen() {
               <ThemedText type="subtitle">›</ThemedText>
             </Pressable>
           </View>
+
+          {hasHistory === false ? (
+            <ThemedText themeColor="textSecondary">
+              Nothing here yet. Finish your first 25-minute session and the grid starts filling in.
+            </ThemedText>
+          ) : null}
 
           <MonthGrid cells={cells} />
           <Legend />

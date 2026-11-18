@@ -28,3 +28,11 @@ export async function loadRange(db: SQLiteDatabase, from: string, to: string): P
     graceDates: graceRows.map((r) => r.local_date),
   };
 }
+
+/** True once the user has ever completed a session. Drives first-run messaging. */
+export async function hasCompletedSession(db: SQLiteDatabase): Promise<boolean> {
+  const row = await db.getFirstAsync<{ n: number }>(
+    'SELECT COUNT(*) AS n FROM (SELECT 1 FROM sessions WHERE completed = 1 LIMIT 1)'
+  );
+  return (row?.n ?? 0) > 0;
+}

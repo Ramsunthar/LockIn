@@ -1,11 +1,11 @@
-import { useRouter } from 'expo-router';
-import { useSQLiteContext } from 'expo-sqlite';
-import { useEffect, useRef, useState } from 'react';
+import { useRouter } from "expo-router";
+import { useSQLiteContext } from "expo-sqlite";
+import { useEffect, useRef, useState } from "react";
 
-import { finishSession, startSession } from '@/db/sessions';
-import type { Bucket } from '@/types';
+import { finishSession, startSession } from "@/db/sessions";
+import type { Bucket } from "@/types";
 
-export const FIVE_MINUTES = 300;
+export const SEC = 5;
 export const COMPLETION_SECONDS = 1500;
 
 type Params = { bucket: Bucket; label: string | null; taskId: string | null };
@@ -37,7 +37,8 @@ export function useSessionTimer({ bucket, label, taskId }: Params) {
     if (startedAtMs === null) return;
     // Elapsed is recomputed from the start timestamp, not counted tick by tick.
     // Timers pause when the app is backgrounded; the clock does not.
-    const tick = () => setElapsed(Math.floor((Date.now() - startedAtMs) / 1000));
+    const tick = () =>
+      setElapsed(Math.floor((Date.now() - startedAtMs) / 1000));
     const interval = setInterval(tick, 1000);
     // The cleanup function runs on unmount. Without it the interval keeps
     // firing and calls setElapsed on a screen that no longer exists.
@@ -49,7 +50,7 @@ export function useSessionTimer({ bucket, label, taskId }: Params) {
     setStopping(true);
     const seconds = Math.floor((Date.now() - startedAtMs) / 1000);
     await finishSession(db, sessionId.current, seconds, taskId);
-    router.dismissTo('/');
+    router.dismissTo("/");
   }
 
   return { elapsed, stop, stopping, ready: startedAtMs !== null };

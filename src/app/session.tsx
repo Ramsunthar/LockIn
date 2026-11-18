@@ -1,61 +1,104 @@
-import { Redirect, useLocalSearchParams } from 'expo-router';
-import { useEffect } from 'react';
-import { BackHandler, Pressable, StyleSheet, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Redirect, useLocalSearchParams } from "expo-router";
+import { useEffect } from "react";
+import { BackHandler, Pressable, StyleSheet, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Spacing } from '@/constants/theme';
-import { useTheme } from '@/hooks/use-theme';
-import { COMPLETION_SECONDS, FIVE_MINUTES, useSessionTimer } from '@/hooks/useSessionTimer';
-import { formatClock } from '@/lib/format';
-import { BUCKETS, BUCKET_LABELS, type Bucket } from '@/types';
+import { ThemedText } from "@/components/themed-text";
+import { ThemedView } from "@/components/themed-view";
+import { Spacing } from "@/constants/theme";
+import { useTheme } from "@/hooks/use-theme";
+import {
+    COMPLETION_SECONDS,
+    SEC,
+    useSessionTimer,
+} from "@/hooks/useSessionTimer";
+import { formatClock } from "@/lib/format";
+import { BUCKETS, BUCKET_LABELS, type Bucket } from "@/types";
 
 export default function SessionScreen() {
-  const params = useLocalSearchParams<{ bucket: Bucket; label?: string; taskId?: string }>();
+  const params = useLocalSearchParams<{
+    bucket: Bucket;
+    label?: string;
+    taskId?: string;
+  }>();
   // A session without a valid bucket (a stale link, a reload on this route)
   // would insert a row that violates the schema. Bounce to Today instead.
   // This is a separate component from the one below because hooks can't be
   // called conditionally: useSessionTimer must only run once the bucket is known.
   if (!BUCKETS.includes(params.bucket)) return <Redirect href="/" />;
-  return <SessionRunner bucket={params.bucket} label={params.label ?? null} taskId={params.taskId ?? null} />;
+  return (
+    <SessionRunner
+      bucket={params.bucket}
+      label={params.label ?? null}
+      taskId={params.taskId ?? null}
+    />
+  );
 }
 
-function SessionRunner({ bucket, label, taskId }: { bucket: Bucket; label: string | null; taskId: string | null }) {
-  const { elapsed, stop, stopping, ready } = useSessionTimer({ bucket, label: label || null, taskId: taskId || null });
+function SessionRunner({
+  bucket,
+  label,
+  taskId,
+}: {
+  bucket: Bucket;
+  label: string | null;
+  taskId: string | null;
+}) {
+  const { elapsed, stop, stopping, ready } = useSessionTimer({
+    bucket,
+    label: label || null,
+    taskId: taskId || null,
+  });
   const theme = useTheme();
 
   // Android's back button would leave the session running in the background.
   useEffect(() => {
-    const sub = BackHandler.addEventListener('hardwareBackPress', () => true);
+    const sub = BackHandler.addEventListener("hardwareBackPress", () => true);
     return () => sub.remove();
   }, []);
 
   const progress = Math.min(elapsed / COMPLETION_SECONDS, 1);
-  const markerAt = `${(FIVE_MINUTES / COMPLETION_SECONDS) * 100}%` as const;
+  const markerAt = `${(SEC / COMPLETION_SECONDS) * 100}%` as const;
 
-  let message = 'Stay with it for five minutes.';
-  if (elapsed >= COMPLETION_SECONDS) message = 'Session complete. Stop whenever you like.';
-  else if (elapsed >= FIVE_MINUTES) message = 'Five minutes done. Keep going.';
+  let message = "Stay with it for five minutes.";
+  if (elapsed >= COMPLETION_SECONDS)
+    message = "Session complete. Stop whenever you like.";
+  else if (elapsed >= SEC) message = "Five minutes done. Keep going.";
 
   return (
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
         <ThemedText type="subtitle">{BUCKET_LABELS[bucket]}</ThemedText>
-        {label ? <ThemedText themeColor="textSecondary">{label}</ThemedText> : null}
+        {label ? (
+          <ThemedText themeColor="textSecondary">{label}</ThemedText>
+        ) : null}
 
         <ThemedText type="title" style={styles.clock}>
           {formatClock(elapsed)}
         </ThemedText>
 
         <View style={styles.barWrap}>
-          <View style={[styles.bar, { backgroundColor: theme.backgroundSelected }]}>
+          <View
+            style={[styles.bar, { backgroundColor: theme.backgroundSelected }]}
+          >
             <View
-              style={[styles.fill, { backgroundColor: theme.text, width: `${progress * 100}%` }]}
+              style={[
+                styles.fill,
+                { backgroundColor: theme.text, width: `${progress * 100}%` },
+              ]}
             />
           </View>
-          <View style={[styles.marker, { left: markerAt, backgroundColor: theme.textSecondary }]} />
-          <ThemedText type="small" themeColor="textSecondary" style={[styles.markerLabel, { left: markerAt }]}>
+          <View
+            style={[
+              styles.marker,
+              { left: markerAt, backgroundColor: theme.textSecondary },
+            ]}
+          />
+          <ThemedText
+            type="small"
+            themeColor="textSecondary"
+            style={[styles.markerLabel, { left: markerAt }]}
+          >
             5 min
           </ThemedText>
         </View>
@@ -65,7 +108,14 @@ function SessionRunner({ bucket, label, taskId }: { bucket: Bucket; label: strin
         <Pressable
           onPress={stop}
           disabled={!ready || stopping}
-          style={[styles.stop, { backgroundColor: theme.backgroundSelected, opacity: ready && !stopping ? 1 : 0.5 }]}>
+          style={[
+            styles.stop,
+            {
+              backgroundColor: theme.backgroundSelected,
+              opacity: ready && !stopping ? 1 : 0.5,
+            },
+          ]}
+        >
           <ThemedText type="smallBold">Stop</ThemedText>
         </Pressable>
       </SafeAreaView>
@@ -75,12 +125,23 @@ function SessionRunner({ bucket, label, taskId }: { bucket: Bucket; label: strin
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  safeArea: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: Spacing.three, paddingHorizontal: Spacing.four },
-  clock: { fontSize: 72, lineHeight: 80, fontVariant: ['tabular-nums'] },
-  barWrap: { width: '100%', height: 36, justifyContent: 'center' },
-  bar: { height: 8, borderRadius: 4, overflow: 'hidden' },
+  safeArea: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: Spacing.three,
+    paddingHorizontal: Spacing.four,
+  },
+  clock: { fontSize: 72, lineHeight: 80, fontVariant: ["tabular-nums"] },
+  barWrap: { width: "100%", height: 36, justifyContent: "center" },
+  bar: { height: 8, borderRadius: 4, overflow: "hidden" },
   fill: { height: 8 },
-  marker: { position: 'absolute', top: 4, width: 2, height: 16 },
-  markerLabel: { position: 'absolute', top: 20, marginLeft: -16 },
-  stop: { marginTop: Spacing.four, paddingVertical: Spacing.three, paddingHorizontal: Spacing.six, borderRadius: Spacing.four },
+  marker: { position: "absolute", top: 4, width: 2, height: 16 },
+  markerLabel: { position: "absolute", top: 20, marginLeft: -16 },
+  stop: {
+    marginTop: Spacing.four,
+    paddingVertical: Spacing.three,
+    paddingHorizontal: Spacing.six,
+    borderRadius: Spacing.four,
+  },
 });

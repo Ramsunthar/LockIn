@@ -7,8 +7,9 @@ import { useCallback, useState } from 'react';
  * result. Tabs stay mounted, so a plain useEffect would show stale data after
  * you finish a session and come back; focus is the right trigger.
  *
- * `query` must be a stable function (declared at module level), otherwise
- * the effect would re-run on every render.
+ * `query` must keep the same identity between renders (declare it at module
+ * level, or wrap it in useCallback with only the inputs it really depends on).
+ * A new function means "run again", which is also how a changed month re-queries.
  */
 export function useFocusQuery<T>(query: (db: SQLiteDatabase) => Promise<T>) {
   const db = useSQLiteContext();

@@ -1,4 +1,4 @@
-import { currentLocalDate, localDateFor, localDatesBetween, shiftLocalDate, tomorrowLocalDate } from './day';
+import { currentLocalDate, localDateFor, localDatesBetween, monthOf, monthRange, shiftLocalDate, shiftMonth, tomorrowLocalDate } from './day';
 
 // Dates are built from local-time parts (not ISO strings) on purpose: the
 // 04:00 rule is about the device's local clock, so the tests must be too.
@@ -101,5 +101,22 @@ describe('localDatesBetween', () => {
   it('returns one date when start equals end, none when start is later', () => {
     expect(localDatesBetween('2026-05-10', '2026-05-10')).toEqual(['2026-05-10']);
     expect(localDatesBetween('2026-05-11', '2026-05-10')).toEqual([]);
+  });
+});
+
+describe('month helpers', () => {
+  it('monthOf takes the YYYY-MM prefix', () => {
+    expect(monthOf('2026-05-10')).toBe('2026-05');
+  });
+  it('shiftMonth crosses year boundaries', () => {
+    expect(shiftMonth('2026-12', 1)).toBe('2027-01');
+    expect(shiftMonth('2026-01', -1)).toBe('2025-12');
+    expect(shiftMonth('2026-05', 0)).toBe('2026-05');
+  });
+  it('monthRange handles 28, 29, 30 and 31 day months', () => {
+    expect(monthRange('2027-02')).toEqual({ first: '2027-02-01', last: '2027-02-28' });
+    expect(monthRange('2028-02')).toEqual({ first: '2028-02-01', last: '2028-02-29' });
+    expect(monthRange('2026-04').last).toBe('2026-04-30');
+    expect(monthRange('2026-05').last).toBe('2026-05-31');
   });
 });

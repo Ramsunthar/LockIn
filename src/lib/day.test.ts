@@ -1,4 +1,4 @@
-import { currentLocalDate, localDateFor } from './day';
+import { currentLocalDate, localDateFor, shiftLocalDate, tomorrowLocalDate } from './day';
 
 // Dates are built from local-time parts (not ISO strings) on purpose: the
 // 04:00 rule is about the device's local clock, so the tests must be too.
@@ -56,5 +56,35 @@ describe('currentLocalDate', () => {
 
   it('defaults to now', () => {
     expect(currentLocalDate()).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+  });
+});
+
+describe('shiftLocalDate', () => {
+  it('moves forward and back across month and year boundaries', () => {
+    expect(shiftLocalDate('2026-05-31', 1)).toBe('2026-06-01');
+    expect(shiftLocalDate('2026-12-31', 1)).toBe('2027-01-01');
+    expect(shiftLocalDate('2026-03-01', -1)).toBe('2026-02-28');
+    expect(shiftLocalDate('2028-03-01', -1)).toBe('2028-02-29');
+  });
+
+  it('is unaffected by daylight saving changes', () => {
+    expect(shiftLocalDate('2026-03-08', 1)).toBe('2026-03-09');
+    expect(shiftLocalDate('2026-11-01', 1)).toBe('2026-11-02');
+  });
+
+  it('shifts by zero and by many days', () => {
+    expect(shiftLocalDate('2026-05-10', 0)).toBe('2026-05-10');
+    expect(shiftLocalDate('2026-01-01', 365)).toBe('2027-01-01');
+  });
+});
+
+describe('tomorrowLocalDate', () => {
+  it('is the next calendar day during the day', () => {
+    expect(tomorrowLocalDate(at(2026, 4, 10, 21, 30))).toBe('2026-05-11');
+  });
+
+  it('after midnight but before 04:00, tomorrow is still the new calendar day', () => {
+    // 01:00 on the 11th is still LockIn day the 10th, so tomorrow is the 11th.
+    expect(tomorrowLocalDate(at(2026, 4, 11, 1, 0))).toBe('2026-05-11');
   });
 });

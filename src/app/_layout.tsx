@@ -13,6 +13,7 @@ export default function RootLayout() {
           <Stack.Screen name="(tabs)" />
           {/* No swipe-back: the spec says no navigation away mid-session. */}
           <Stack.Screen name="session" options={{ gestureEnabled: false }} />
+          <Stack.Screen name="plan" options={{ presentation: 'modal' }} />
         </Stack>
       </SQLiteProvider>
     </ThemeProvider>

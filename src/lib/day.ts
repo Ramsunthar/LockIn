@@ -1,4 +1,4 @@
-import { addDays, format, parseISO, subDays } from 'date-fns';
+import { addDays, addMonths, endOfMonth, format, parseISO, subDays } from 'date-fns';
 
 // The day starts at 04:00 local, not midnight, so a late-night session still
 // counts toward the day it belongs to. This is the ONLY place in the codebase
@@ -36,4 +36,19 @@ export function localDatesBetween(start: string, end: string): string[] {
   // 'YYYY-MM-DD' strings sort the same as the dates they name.
   for (let d = start; d <= end; d = shiftLocalDate(d, 1)) dates.push(d);
   return dates;
+}
+
+/** 'YYYY-MM' of a 'YYYY-MM-DD' LockIn date. */
+export function monthOf(localDate: string): string {
+  return localDate.slice(0, 7);
+}
+
+/** Moves a 'YYYY-MM' month forward (or back, if negative). */
+export function shiftMonth(month: string, months: number): string {
+  return format(addMonths(parseISO(`${month}-01`), months), 'yyyy-MM');
+}
+
+/** First and last LockIn date of a 'YYYY-MM' month. */
+export function monthRange(month: string): { first: string; last: string } {
+  return { first: `${month}-01`, last: format(endOfMonth(parseISO(`${month}-01`)), 'yyyy-MM-dd') };
 }

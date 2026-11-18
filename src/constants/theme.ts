@@ -24,6 +24,12 @@ export const Colors = {
   },
 } as const;
 
+/** Grid shading, level 0 (empty) to 3 (dark). */
+export const Heat = {
+  light: ['#EBEDF0', '#9BE9A8', '#40C463', '#216E39'],
+  dark: ['#212225', '#0E4429', '#26A641', '#39D353'],
+} as const;
+
 export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
 
 export const Fonts = Platform.select({

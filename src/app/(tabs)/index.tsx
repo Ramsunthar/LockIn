@@ -81,6 +81,10 @@ export default function TodayScreen() {
             </>
           )}
         </View>
+
+        <View style={styles.footer}>
+          <Button label="Plan tomorrow" variant="secondary" onPress={() => router.push('/plan')} />
+        </View>
       </SafeAreaView>
     </ThemedView>
   );
@@ -92,5 +96,6 @@ const styles = StyleSheet.create({
   count: { textAlign: 'center', marginTop: Spacing.three },
   center: { flex: 1, justifyContent: 'center', gap: Spacing.two },
   centerText: { textAlign: 'center' },
+  footer: { paddingVertical: Spacing.three },
   actions: { gap: Spacing.two, marginTop: Spacing.four },
 });

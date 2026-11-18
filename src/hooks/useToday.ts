@@ -1,7 +1,7 @@
 import { useSQLiteContext } from 'expo-sqlite';
 
 import { loadToday } from '@/db/today';
-import { skipTask } from '@/db/tasks';
+import { markTaskDone, skipTask } from '@/db/tasks';
 import { useFocusQuery } from './use-focus-query';
 
 export function useToday() {
@@ -14,5 +14,12 @@ export function useToday() {
     reload();
   }
 
-  return { data, skip };
+  // Applications aren't timed work: sending one is a tap, not a session.
+  async function markDone() {
+    if (!data?.task) return;
+    await markTaskDone(db, data.task.id);
+    reload();
+  }
+
+  return { data, skip, markDone };
 }

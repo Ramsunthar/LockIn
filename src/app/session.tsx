@@ -12,11 +12,12 @@ import { formatClock } from '@/lib/format';
 import { BUCKET_LABELS, type Bucket } from '@/types';
 
 export default function SessionScreen() {
-  const params = useLocalSearchParams<{ bucket: Bucket; label?: string }>();
+  const params = useLocalSearchParams<{ bucket: Bucket; label?: string; taskId?: string }>();
   const bucket = params.bucket;
   const { elapsed, stop, stopping, ready } = useSessionTimer({
     bucket,
     label: params.label ? params.label : null,
+    taskId: params.taskId ? params.taskId : null,
   });
   const theme = useTheme();
 

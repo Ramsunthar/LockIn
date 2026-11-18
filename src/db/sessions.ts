@@ -4,6 +4,7 @@ import { localDateFor } from '../lib/day';
 import { newId } from '../lib/id';
 import type { Bucket } from '../types';
 import { getSetting } from './settings';
+import { markTaskDone } from './tasks';
 
 const DEFAULT_COMPLETION_SECONDS = 1500;
 
@@ -61,4 +62,25 @@ export async function countCompletedOn(db: SQLiteDatabase, localDate: string): P
     localDate
   );
   return row?.n ?? 0;
+}
+
+/**
+ * Ends a session and, if it counted as completed, marks the planned task it
+ * was started from as done. One transaction, so a crash can't leave a
+ * completed session beside a task that still says pending.
+ * Abandoned sessions leave the task pending.
+ */
+export async function finishSession(
+  db: SQLiteDatabase,
+  id: string,
+  elapsedSeconds: number,
+  taskId: string | null,
+  now: Date = new Date()
+): Promise<boolean> {
+  let completed = false;
+  await db.withTransactionAsync(async () => {
+    completed = await endSession(db, id, elapsedSeconds, now);
+    if (completed && taskId) await markTaskDone(db, taskId);
+  });
+  return completed;
 }

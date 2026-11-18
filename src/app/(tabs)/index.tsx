@@ -6,12 +6,14 @@ import { Button } from '@/components/button';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, Spacing } from '@/constants/theme';
+import { useStreak } from '@/hooks/useStreak';
 import { useToday } from '@/hooks/useToday';
 import { BUCKETS, BUCKET_LABELS, type Bucket } from '@/types';
 
 export default function TodayScreen() {
   const router = useRouter();
   const { data, skip, markDone } = useToday();
+  const streak = useStreak();
 
   function start(bucket: Bucket, label: string | null, taskId?: string) {
     router.push({
@@ -30,6 +32,7 @@ export default function TodayScreen() {
       <SafeAreaView style={styles.safeArea}>
         <ThemedText themeColor="textSecondary" style={styles.count}>
           {completedSessions} {completedSessions === 1 ? 'session' : 'sessions'} today
+          {streak ? ` · ${streak.streak} day streak` : ''}
         </ThemedText>
 
         <View style={styles.center}>

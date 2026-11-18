@@ -29,3 +29,11 @@ export function shiftLocalDate(localDate: string, days: number): string {
 export function tomorrowLocalDate(now: Date = new Date()): string {
   return shiftLocalDate(currentLocalDate(now), 1);
 }
+
+/** Every LockIn date from `start` to `end`, both inclusive. Empty if start > end. */
+export function localDatesBetween(start: string, end: string): string[] {
+  const dates: string[] = [];
+  // 'YYYY-MM-DD' strings sort the same as the dates they name.
+  for (let d = start; d <= end; d = shiftLocalDate(d, 1)) dates.push(d);
+  return dates;
+}

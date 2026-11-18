@@ -1,4 +1,4 @@
-import { currentLocalDate, localDateFor, shiftLocalDate, tomorrowLocalDate } from './day';
+import { currentLocalDate, localDateFor, localDatesBetween, shiftLocalDate, tomorrowLocalDate } from './day';
 
 // Dates are built from local-time parts (not ISO strings) on purpose: the
 // 04:00 rule is about the device's local clock, so the tests must be too.
@@ -86,5 +86,20 @@ describe('tomorrowLocalDate', () => {
   it('after midnight but before 04:00, tomorrow is still the new calendar day', () => {
     // 01:00 on the 11th is still LockIn day the 10th, so tomorrow is the 11th.
     expect(tomorrowLocalDate(at(2026, 4, 11, 1, 0))).toBe('2026-05-11');
+  });
+});
+
+describe('localDatesBetween', () => {
+  it('is inclusive at both ends', () => {
+    expect(localDatesBetween('2026-05-30', '2026-06-02')).toEqual([
+      '2026-05-30',
+      '2026-05-31',
+      '2026-06-01',
+      '2026-06-02',
+    ]);
+  });
+  it('returns one date when start equals end, none when start is later', () => {
+    expect(localDatesBetween('2026-05-10', '2026-05-10')).toEqual(['2026-05-10']);
+    expect(localDatesBetween('2026-05-11', '2026-05-10')).toEqual([]);
   });
 });
